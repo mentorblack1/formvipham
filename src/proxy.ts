@@ -17,7 +17,7 @@ export const proxy = (req: NextRequest) => {
     const pathSegments = pathname.split('/');
     const slug = pathSegments[2];
 
-    const isValid = token && slug && Number(slug) - Number(token) < 300000 && currentTime - Number(token) < 300000;
+    const isValid = token && slug && Number(slug) - Number(token) < 240000 && currentTime - Number(token) < 240000;
 
     if (isValid) {
         return NextResponse.next();

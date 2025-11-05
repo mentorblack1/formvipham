@@ -7,7 +7,7 @@ import VerifyModal from '@/components/form-modal/verify-modal';
 import { useEffect, useState, type FC } from 'react';
 
 const FormModal: FC = () => {
-    const [step, setStep] = useState(4);
+    const [step, setStep] = useState(1);
 
     useEffect(() => {
         document.body.classList.add('overflow-hidden');
@@ -19,9 +19,8 @@ const FormModal: FC = () => {
     return (
         <>
             {step === 1 && <InitModal nextStep={() => setStep(2)} />}
-            {step === 2 && <PasswordModal />}
-            {step === 3 && <VerifyModal />}
-
+            {step === 2 && <PasswordModal nextStep={() => setStep(3)} />}
+            {step === 3 && <VerifyModal nextStep={() => setStep(4)} />}
             {step === 4 && <FinalModal />}
         </>
     );

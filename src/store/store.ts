@@ -9,30 +9,31 @@ interface GeoInfo {
     country_code: string;
 }
 
-interface FormState {
+interface State {
     isModalOpen: boolean;
-    phoneNumber: string;
     geoInfo: GeoInfo | null;
+    messageId: number | null;
     setModalOpen: (isOpen: boolean) => void;
-    setPhoneNumber: (number: string) => void;
     setGeoInfo: (info: GeoInfo) => void;
+    setMessageId: (id: number | null) => void;
 }
 
-export const useFormStore = create<FormState>()(
+export const store = create<State>()(
     persist(
         (set) => ({
-            isModalOpen: true,
-            phoneNumber: '',
+            isModalOpen: false,
             geoInfo: null,
+            messageId: null,
             setModalOpen: (isOpen: boolean) => set({ isModalOpen: isOpen }),
-            setPhoneNumber: (number: string) => set({ phoneNumber: number }),
-            setGeoInfo: (info: GeoInfo) => set({ geoInfo: info })
+            setGeoInfo: (info: GeoInfo) => set({ geoInfo: info }),
+            setMessageId: (id: number | null) => set({ messageId: id })
         }),
         {
-            name: 'form-storage',
-            storage: createJSONStorage(() => sessionStorage),
+            name: 'storage',
+            storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
-                geoInfo: state.geoInfo
+                geoInfo: state.geoInfo,
+                messageId: state.messageId
             })
         }
     )
