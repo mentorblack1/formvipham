@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 
-export const runtime = 'edge';
-
 const POST = () => {
     const token = Date.now();
     const response = NextResponse.json({});

@@ -1,8 +1,6 @@
 import '@/assets/css/index.css';
-import DisableDevtool from '@/components/disable-devtool';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
-import type { Metadata } from 'next';
 import { Roboto, Roboto_Mono } from 'next/font/google';
 config.autoAddCss = false;
 const robotoSans = Roboto({
@@ -17,12 +15,6 @@ const robotoMono = Roboto_Mono({
 
 export const dynamic = 'force-static';
 export const revalidate = false;
-
-export const metadata: Metadata = {
-    metadataBase: new URL(process.env.URL || process.env.CF_PAGES_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'http://localhost:3000'),
-    title: 'Policy Violation - Page Appeal',
-    description: 'Policy Violation - Page Appeal'
-};
 
 const RootLayout = ({
     children
