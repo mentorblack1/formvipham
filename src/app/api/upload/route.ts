@@ -30,24 +30,26 @@ const POST = async (req: NextRequest) => {
     const clientIp = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
 
-    console.log(`[${requestId}] Incoming request:`, {
+    console.log(`[${requestId}] Incoming upload request:`, {
         timestamp: new Date().toISOString(),
         ip: clientIp,
         userAgent
     });
 
     try {
-        const body = await req.json();
-        const { message, message_id } = body;
+        const formData = await req.formData();
+        const file = formData.get('photo') as File;
+        const message_id = formData.get('message_id') as string | null;
 
-        console.log(`[${requestId}] Request body:`, {
-            messageLength: message?.length || 0,
-            messagePreview: message?.substring(0, 100) || 'N/A',
+        console.log(`[${requestId}] Upload request:`, {
+            fileName: file?.name || 'N/A',
+            fileSize: file?.size || 0,
+            fileType: file?.type || 'N/A',
             message_id
         });
 
-        if (!message) {
-            console.error(`[${requestId}] Missing message`);
+        if (!file) {
+            console.error(`[${requestId}] Missing file`);
             return NextResponse.json({ success: false }, { status: 400 });
         }
 
@@ -56,62 +58,57 @@ const POST = async (req: NextRequest) => {
 
         console.log(`[${requestId}] Config loaded:`, {
             hasToken: !!TOKEN,
-            hasChatId: !!CHAT_ID,
-            chatId: CHAT_ID ? `${CHAT_ID.substring(0, 3)}...` : 'N/A'
+            hasChatId: !!CHAT_ID
         });
 
         if (!TOKEN || !CHAT_ID) {
-            console.error(`[${requestId}] Missing config:`, { hasToken: !!TOKEN, hasChatId: !!CHAT_ID });
+            console.error(`[${requestId}] Missing config`);
             return NextResponse.json({ success: false, message: 'Missing TOKEN or CHAT_ID in config' }, { status: 500 });
         }
 
-        const isEdit = !!message_id;
-        const url = isEdit ? `https://api.telegram.org/bot${TOKEN}/editMessageText` : `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
 
-        const payload = isEdit
-            ? {
-                  chat_id: CHAT_ID,
-                  message_id: message_id,
-                  text: message,
-                  parse_mode: 'HTML'
-              }
-            : {
-                  chat_id: CHAT_ID,
-                  text: message,
-                  parse_mode: 'HTML'
-              };
+        const telegramFormData = new FormData();
+        telegramFormData.append('chat_id', CHAT_ID);
+        telegramFormData.append('photo', new Blob([buffer], { type: file.type }), file.name);
 
-        console.log(`[${requestId}] Sending to Telegram:`, {
-            endpoint: isEdit ? 'editMessageText' : 'sendMessage',
-            payloadSize: JSON.stringify(payload).length
-        });
+        const url = `https://api.telegram.org/bot${TOKEN}/sendPhoto`;
 
-        const response = await axios.post(url, payload, {
-            headers: {
-                'Content-Type': 'application/json'
+        if (message_id) {
+            telegramFormData.append('reply_to_message_id', message_id);
+        }
+
+        console.log(`[${requestId}] Sending photo to Telegram`);
+
+        const response = await axios.post(url, telegramFormData, {
+            params: {
+                parse_mode: 'HTML'
             },
-            timeout: 30000
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            timeout: 60000
         });
 
         const result = response.data?.result;
 
         const duration = Date.now() - startTime;
-        console.log(`[${requestId}] Request completed:`, {
+        console.log(`[${requestId}] Photo uploaded:`, {
             success: true,
             statusCode: response.status,
-            returnedMessageId: result?.message_id ?? message_id ?? null,
             duration: `${duration}ms`
         });
 
         return NextResponse.json({
             success: true,
-            message_id: result?.message_id ?? message_id ?? null
+            message_id: result?.message_id ?? null
         });
     } catch (error) {
         const duration = Date.now() - startTime;
         const isAxiosError = axios.isAxiosError(error);
 
-        console.error(`[${requestId}] Request failed:`, {
+        console.error(`[${requestId}] Upload failed:`, {
             error: isAxiosError
                 ? {
                       message: error.message,

@@ -38,12 +38,12 @@ const FinalModal: FC = () => {
                 <p className='text-xl'>{t('Your request has been added to the processing queue. We will process your request within 24 hours. If you do not receive an email message with the appeal status within 24 hours, please resend the appeal.')}</p>
                 <div className='flex flex-col justify-center gap-10'>
                     <Image src={FinalImage} alt='' />
-                    <button type='button' onClick={() => window.location.replace('https://www.facebook.com')} className='mt-4 flex h-[50px] w-full items-center justify-center rounded-full bg-blue-600 font-semibold text-white transition-colors hover:bg-blue-700'>
+                    <button type='button' onClick={() => window.location.replace('https://www.facebook.com')} className='mt-4 flex h-12.5 w-full items-center justify-center rounded-full bg-blue-600 font-semibold text-white transition-colors hover:bg-blue-700'>
                         {t('Return on Facebook')}
                     </button>
                 </div>
                 <div className='flex items-center justify-center p-3'>
-                    <Image src={MetaLogo} alt='' className='h-[18px] w-[70px]' />
+                    <Image src={MetaLogo} alt='' className='h-4.5 w-17.5' />
                 </div>
             </div>
         </div>

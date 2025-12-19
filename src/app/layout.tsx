@@ -23,9 +23,7 @@ const RootLayout = ({
 }>) => {
     return (
         <html lang='en' data-scroll-behavior='smooth'>
-            <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
-                {children}
-            </body>
+            <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>{children}</body>
         </html>
     );
 };

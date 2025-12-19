@@ -5,7 +5,6 @@ const BOT_KEYWORDS = ['bot', 'spider', 'crawler', 'headl', 'headless', 'slurp', 
 const BLOCKED_ASN = new Set([
     // Cloud Providers
     15169, // Google Cloud
-    32934, // Facebook
     396982, // Google Cloud / Google LLC
     8075, // Microsoft Azure
     16509, // Amazon AWS

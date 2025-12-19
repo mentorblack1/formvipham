@@ -27,7 +27,7 @@ yarn-error.log*
 .vercel
 .venv
 dist
-config.txt
+# config.txt
 *.spec
 
 *.tsbuildinfo
